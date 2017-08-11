@@ -203,3 +203,14 @@ dados %>%
   ggtitle("Resíduos do modelo")
 ```
 
+NOTES:
+r²: se perto de 0, então o modelo não explica os dados; se perto de 1, então o modelo explica bem os dados.
+
+EU TO VIAJANDO !!!!!!!!!
+
+Modelos:
+
+- ausência de correlação
+- outliers (valores extremos)
+- não-linearidade
+- heteroscedasticidade
