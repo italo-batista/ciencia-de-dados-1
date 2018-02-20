@@ -54,6 +54,7 @@ modelo1 = lm(producao ~ `Docentes permanentes`, data = cacc)
 
 tidy(modelo1, conf.int = TRUE, conf.level = 0.95)
 glance(modelo1)
+summary(modelo1)
 ```
 
 Para visualizar o modelo:
@@ -76,9 +77,16 @@ Se considerarmos que temos apenas uma amostra de todos os programas de pós em C
 
 **EXPLICAÇÃO**: *Substitua esse texto por seu comentário. Comente tanto sobre as relações entre as variáveis (significância e relevância do efeito) quanto o quão bem o modelo explica os dados.*
 
+raw: a reta do modelo cruza a nuvem de pontos exatamente no meio; portanto não há enviezamento, visto que ela não está mais acima ou mais abaixo de um conjunto de pontos;
+raw: como o r² foi 0.814 (alto), isso signifca que o modelo explica 81% da variação dos dados. 
+raw: o pvalor é bastante baixo, então a relação entre os variáveis não é ao acaso;
+raw: o intervalo de confiança é positivo então há relação significativa entre as variáveis;
+
 -----
 
 Algum palpite de por que a relação existe como ela existe em termos de força?
+
+O r² alto era esperado porque é óbvio que quanto mais pesquisadores existem mais publicações os programas terão.
 
 ## Mais fatores
 
