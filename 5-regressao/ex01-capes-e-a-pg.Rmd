@@ -7,6 +7,7 @@ output: html_notebook
 library(tidyverse)
 library(broom)
 library(modelr)
+library(DT)
 theme_set(theme_bw())
 ```
 
@@ -77,10 +78,11 @@ Se considerarmos que temos apenas uma amostra de todos os programas de pós em C
 
 **EXPLICAÇÃO**: *Substitua esse texto por seu comentário. Comente tanto sobre as relações entre as variáveis (significância e relevância do efeito) quanto o quão bem o modelo explica os dados.*
 
+raw: a relação entre as variáveis é crescente, ou seja, se aumentarmos a quantidade de docentes, aumenta-se a quantidade de artigos produzidos. como conf.low = 4.269955	e conf.high = 5.356786, se aumentarmos em 1 o número de docentes estaremos aumentando entre 4 e 5 o número de artigos produzidos.
 raw: a reta do modelo cruza a nuvem de pontos exatamente no meio; portanto não há enviezamento, visto que ela não está mais acima ou mais abaixo de um conjunto de pontos;
-raw: como o r² foi 0.814 (alto), isso signifca que o modelo explica 81% da variação dos dados. 
-raw: o pvalor é bastante baixo, então a relação entre os variáveis não é ao acaso;
-raw: o intervalo de confiança é positivo então há relação significativa entre as variáveis;
+raw: como o r² foi 0.814 (alto), isso signifca que o modelo baseado somente na quantidade de professores explica 81% da variância da quantidade de artigos. 
+raw: o pvalor é bastante baixo, então a relação entre as variáveis não é ao acaso;
+raw: o intervalo de confiança é positivo e não contém o zero, portanto a estimativa do coeficiente para as variáveis é significativa
 
 -----
 
@@ -99,9 +101,16 @@ cacc = cacc %>%
 
 modelo2 = lm(producao ~ `Docentes permanentes` + mestrados_pprof + doutorados_pprof, data = cacc)
 
-tidy(modelo2, conf.int = TRUE, conf.level = 0.95)
+#tidy(modelo2, conf.int = TRUE, conf.level = 0.95)
 glance(modelo2)
 ```
+
+```{r}
+datatable(tidy(modelo2, conf.int = TRUE) %>% 
+  select(-std.error), class = 'cell-border stripe')
+```
+
+
 
 Visualizar o modelo com muitas variáveis independentes fica mais difícil
 
@@ -131,6 +140,14 @@ Considerando agora esses três fatores, o que podemos dizer sobre como cada um d
 -----
 
 **EXPLICAÇÃO**: *Substitua esse texto por seu comentário. Comente tanto sobre as relações entre as variáveis (significância e relevância do efeito) quanto o quão bem o modelo explica os dados.*
+
+raw: como interpreta esse gráfico doido?
+raw: o r² ainda deu bastante alto. isso signifca que o modelo baseado tbm no número de alunos explica 84% da variância da quantidade de artigos, apenas 3% maior que o modelo anterior. 
+raw: o intervalo de confiança para número de alunos inclue o 0, portanto a estimativa para essa variável não é conclusiva / significativa. no entanto, para as outras variáveis, as estimativas é conclusiva.
+raw: segundo o modelo: se aumentarmos em 1 o número de docentes estaremos aumentando entre 3 e 4 o número de artigos produzidos. se aumentarmos em 1 o número doutorandos estaremos aumentando entre 9 e 33 o número de artigos produzidos.
+
+raw: a reta do modelo cruza a nuvem de pontos exatamente no meio; portanto não há enviezamento, visto que ela não está mais acima ou mais abaixo de um conjunto de pontos;
+
 
 -----
 
