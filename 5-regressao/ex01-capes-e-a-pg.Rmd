@@ -156,3 +156,45 @@ Diferente de medirmos produção (total produzido), é medirmos produtividade (p
   * Crie um modelo que avalie como pelo menos 4 fatores se relacionam com a produtividade de um programa. Pode reutilizar fatores que já definimos e analizamos para produção. Mas cuidado para não incluir fatores que sejam função linear de outros já incluídos (ex: incluir A, B e um tercero C=A+B)
 
 Produza abaixo o modelo e um texto que comente (i) o modelo, tal como os que fizemos antes, e (ii) uma comparação entre as relações que você viu nesse modelo e no anterior (de produção) e por que as relações encontradas foram diferentes (se foram).
+
+-----
+
+A produtividade será calculada pela divisão do número de artigos produzidos pela quantidade de docentes permanentes. 
+
+```{r}
+cacc = cacc %>%
+  mutate(
+    produtividade = producao / `Docentes permanentes`,
+    `Tem doutorado` = as.factor(`Tem doutorado`),
+    `Tem doutorado` = as.integer(`Tem doutorado`),
+    `Outros Periodicos` = periodicos_B2 + periodicos_B3 + periodicos_B4 + periodicos_B5 + periodicos_C
+  )
+```
+
+
+```{r}
+modelo3 = lm(produtividade ~ `Nível` + `Tem doutorado` + `Outros Periodicos` + `Artigos em conf`, data = cacc)
+
+tidy(modelo3, conf.int = TRUE, conf.level = 0.95)
+glance(modelo3)
+plot(modelo3)
+```
+
+```{r}
+library(glmnet) # fit glms with elastic net
+
+input <- cacc %>%
+    #select(-produtividade, -Instituição, -Sigla, -Programa) %>% # dont include the variable we're predicting!
+    select(Nível, `Tem doutorado`, `Docentes colaboradores`, `Docentes permanentes`, `Docentes visitantes`, `Resumos em conf`, `Resumos expandidos em conf`, `Artigos em conf`, Dissertacoes, Teses, `Outros Periodicos`, orientandos_proff) %>%
+    as.matrix()
+
+output= cacc$produtividade
+
+cv_fit <- cv.glmnet(input, output, family = "gaussian")
+
+coef(cv_fit, s = "lambda.min")
+
+summary(cv_fit)
+
+```
+
