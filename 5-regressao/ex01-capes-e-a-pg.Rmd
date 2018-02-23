@@ -7,7 +7,6 @@ output: html_notebook
 library(tidyverse)
 library(broom)
 library(modelr)
-library(DT)
 theme_set(theme_bw())
 ```
 
@@ -76,19 +75,13 @@ Se considerarmos que temos apenas uma amostra de todos os programas de pós em C
 
 -----
 
-**EXPLICAÇÃO**: *Substitua esse texto por seu comentário. Comente tanto sobre as relações entre as variáveis (significância e relevância do efeito) quanto o quão bem o modelo explica os dados.*
-
-raw: a relação entre as variáveis é crescente, ou seja, se aumentarmos a quantidade de docentes, aumenta-se a quantidade de artigos produzidos. como conf.low = 4.269955	e conf.high = 5.356786, se aumentarmos em 1 o número de docentes estaremos aumentando entre 4 e 5 o número de artigos produzidos.
-raw: a reta do modelo cruza a nuvem de pontos exatamente no meio; portanto não há enviezamento, visto que ela não está mais acima ou mais abaixo de um conjunto de pontos;
-raw: como o r² foi 0.814 (alto), isso signifca que o modelo baseado somente na quantidade de professores explica 81% da variância da quantidade de artigos. 
-raw: o pvalor é bastante baixo, então a relação entre as variáveis não é ao acaso;
-raw: o intervalo de confiança é positivo e não contém o zero, portanto a estimativa do coeficiente para as variáveis é significativa
+**EXPLICAÇÃO**: *A relação entre as variáveis é crescente, ou seja, aumentando a quantidade de docentes permanentes aumenta-se a quantidade de artigos produzidos. Mais precisamente, como conf.low = 4.269955	e conf.high = 5.356786, se aumentarmos em 1 o número de docentes estaremos aumentando entre 4 e 5 o número de artigos produzidos. É possível observar também que a reta do modelo cruza a nuvem de pontos exatamente no meio, sugerindo que não há enviezamento, pois ela não está mais acima ou mais abaixo de um conjunto de pontos. Esse modelo explica bem os dados, visto que o valor para R² foi 0.814, considerado alto. Isso signifca que o modelo baseado somente na quantidade de professores explica 81% da variância da quantidade de artigos. Por fim, o intervalo de confiança para a estimativa de Docentes permanentes é positivo e não contém o zero, portanto a estimativa do coeficiente beta é significativa (de outro modo,  o pvalor é bastante baixo, indicando a relação entre as variáveis Docentes permanentes e Produção não é ao acaso).*
 
 -----
 
 Algum palpite de por que a relação existe como ela existe em termos de força?
 
-O r² alto era esperado porque é óbvio que quanto mais pesquisadores existem mais publicações os programas terão.
+O R² alto era esperado porque é óbvio que quanto mais pesquisadores existem mais publicações os programas terão.
 
 ## Mais fatores
 
@@ -101,16 +94,9 @@ cacc = cacc %>%
 
 modelo2 = lm(producao ~ `Docentes permanentes` + mestrados_pprof + doutorados_pprof, data = cacc)
 
-#tidy(modelo2, conf.int = TRUE, conf.level = 0.95)
+tidy(modelo2, conf.int = TRUE, conf.level = 0.95)
 glance(modelo2)
 ```
-
-```{r}
-datatable(tidy(modelo2, conf.int = TRUE) %>% 
-  select(-std.error), class = 'cell-border stripe')
-```
-
-
 
 Visualizar o modelo com muitas variáveis independentes fica mais difícil
 
@@ -139,12 +125,7 @@ Considerando agora esses três fatores, o que podemos dizer sobre como cada um d
 
 -----
 
-**EXPLICAÇÃO**: *Substitua esse texto por seu comentário. Comente tanto sobre as relações entre as variáveis (significância e relevância do efeito) quanto o quão bem o modelo explica os dados.*
-
-raw: como interpreta esse gráfico doido? pelo gráfico vemos que quanto maior o número de doutores maior será o número de artigos produzidos. e quanto maior o número de docentes maior o número de artigos produzidos.
-raw: o r² ainda deu bastante alto. isso signifca que o modelo baseado tbm no número de alunos explica 84% da variância da quantidade de artigos, apenas 3% maior que o modelo anterior. 
-raw: o intervalo de confiança para número de alunos inclue o 0, portanto a estimativa para essa variável não é conclusiva / significativa. no entanto, para as outras variáveis, as estimativas é conclusiva.
-raw: segundo o modelo: se aumentarmos em 1 o número de docentes estaremos aumentando entre 3 e 4 o número de artigos produzidos. se aumentarmos em 1 o número doutorandos estaremos aumentando entre 9 e 33 o número de artigos produzidos.
+**EXPLICAÇÃO**: *Pelo gráfico, vemos que quanto maior o número de doutores por professor maior será o número de artigos produzidos, havendo essa mesma relação crescente entre Docentes permanentes e produção. O R² ainda deu bastante alto, isso signifca que o modelo baseado também no número de alunos explica 84% da variância da quantidade de artigos, apenas 3% maior que o modelo anterior. O intervalo de confiança para número de mestrandos por professor inclui o 0, portanto a estimativa para essa variável não é conclusiva / significativa,. No entanto, para as outras variáveis as estimativas é conclusiva e têm relação crescente co a variável independente. Ainda segundo o modelo: se aumentarmos em 1 o número de docentes estaremos aumentando entre 3 e 4 o número de artigos produzidos, e se aumentarmos em 1 o número doutorandos estaremos aumentando entre 9 e 33 o número de artigos produzidos.*
 
 -----
 
@@ -159,42 +140,74 @@ Produza abaixo o modelo e um texto que comente (i) o modelo, tal como os que fiz
 
 -----
 
-A produtividade será calculada pela divisão do número de artigos produzidos pela quantidade de docentes permanentes. 
+A produtividade será calculada como a divisão do número de artigos produzidos pela quantidade de docentes permanentes. 
 
 ```{r}
+
+tem_doutorado = function(ans) {
+  if (ans == "Sim") {
+    return(1)
+  } else {
+    return(0)
+  }
+}
+
 cacc = cacc %>%
   mutate(
     produtividade = producao / `Docentes permanentes`,
-    `Tem doutorado` = as.factor(`Tem doutorado`),
-    `Tem doutorado` = as.integer(`Tem doutorado`),
+    #`Tem doutorado` = sapply(`Tem doutorado`, tem_doutorado),
     `Outros Periodicos` = periodicos_B2 + periodicos_B3 + periodicos_B4 + periodicos_B5 + periodicos_C
   )
 ```
 
+Os fatores escolhidos são:
+
+* Nível do programa
+* Existência ou não de doutorado no programa
+* Quantidade de artigos produzidos de outros nívels (de B2 a C)
+* Quantidade de artigos em conferências
 
 ```{r}
 modelo3 = lm(produtividade ~ `Nível` + `Tem doutorado` + `Outros Periodicos` + `Artigos em conf`, data = cacc)
 
 tidy(modelo3, conf.int = TRUE, conf.level = 0.95)
 glance(modelo3)
-plot(modelo3)
+#plot(modelo3)
 ```
 
 ```{r}
-library(glmnet) # fit glms with elastic net
+# model_plot = cacc %>% 
+#   data_grid(
+#     `Nível` = seq_range(`Nível`, 10), 
+#     `Tem doutorado`= seq_range(`Tem doutorado`, 4),
+#     `Outros Periodicos` = seq_range(`Outros Periodicos`, 3),
+#     `Artigos em conf` = seq_range(`Artigos em conf`, 3)) %>% 
+#   add_predictions(modelo3)
+# 
+# model_plot %>%
+#   ggplot(aes(x = `Outros Periodicos`, y = pred)) +
+#   geom_line(aes(group = `Nível`, colour = `Nível`)) +
+#   geom_point(aes(shape=as.factor(`Artigos em conf`)), size=3, alpha=0.3) +
+#   facet_grid(. ~ as.integer(`Tem doutorado`))
+```
 
-input <- cacc %>%
-    #select(-produtividade, -Instituição, -Sigla, -Programa) %>% # dont include the variable we're predicting!
-    select(Nível, `Tem doutorado`, `Docentes colaboradores`, `Docentes permanentes`, `Docentes visitantes`, `Resumos em conf`, `Resumos expandidos em conf`, `Artigos em conf`, Dissertacoes, Teses, `Outros Periodicos`, orientandos_proff) %>%
-    as.matrix()
+**EXPLICAÇÃO**: *O R² foi menor que o dos outros dois modelos, diminuindo em cerca de 20%. Este modelo baseado em mais fatores explica apenas 63% da variância da produtividade. O intervalo de confiança para quantidade de artigos em outras conferências inclui o 0, portanto a estimativa para essa variável não é conclusiva / significativa. No entanto, para as outras variáveis as estimativas é conclusiva e têm relação crescente com a variável independente. Em comparação com o outro modelo, verifica-se que a existência de doutorado influencia na produtividade do programa. No modelo anterior, quanto maior o número de doutorandos por professor maior a produção do programa (enquanto que o número de mestrando não influencia). Neste modelo, de modo semalhante, a existência de doutorado no programa indica maior produtividade. Nesses dois casos, esses dois resultados já é esperado. Outra comparação que podemos fazer com os modelos anteriores é que para as variáveis dependentes escolhidas já esperava-se uma relação crescente. Por exemplo, quanto maior o número de docentes e de orientandos por docente obviamente maior será a produação do programa. Neste último modelo, contudo, as variáveis independentes têm uma relação menos óbvia com a produtividade. Espera-se que o fato de haver doutorado e um nível de programa mais alto indiquem que a produtividade seja maior. Contudo, uma relação entre a produção de artigos em revistas de níveis mais altos e a produação para outros níveis é menos óbvia. Essa relação menos óbvia pode justificar o R² mais baixo. *
 
-output= cacc$produtividade
 
-cv_fit <- cv.glmnet(input, output, family = "gaussian")
-
-coef(cv_fit, s = "lambda.min")
-
-summary(cv_fit)
-
+```{r}
+# library(glmnet)
+# 
+# input = cacc %>%
+#     select(Nível, `Tem doutorado`, `Docentes colaboradores`, 
+#            `Docentes permanentes`, `Docentes visitantes`, `Resumos em conf`, 
+#            `Resumos expandidos em conf`, `Artigos em conf`, Dissertacoes, Teses, 
+#            `Outros Periodicos`, orientandos_proff) %>%
+#     as.matrix()
+# 
+# output= cacc$produtividade
+# 
+# cv_fit <- cv.glmnet(input, output, family = "gaussian")
+# coef(cv_fit, s = "lambda.min")
+# summary(cv_fit)
 ```
 
